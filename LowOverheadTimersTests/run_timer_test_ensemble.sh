@@ -7,11 +7,11 @@ for MODE in external inline
 do
 	for COMPILER in icc gcc
 	do
-		echo "Running $NTRIALS iterations of timer_ovhd_${MODE}.${COMPILER}.exe"
-		rm -f log.test_${MODE}_${COMPILER}
-
 		if [ -x ./timer_ovhd_${MODE}.${COMPILER}.exe ]
 		then
+			echo "Running $NTRIALS iterations of timer_ovhd_${MODE}.${COMPILER}.exe"
+			rm -f log.test_${MODE}_${COMPILER}
+
 			for ITER in `seq 0 $MAXTRIAL`
 			do
 				echo -n "$ITER "
