@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo ""
+
 which icc >& /dev/null
 if [ $? -ne 0 ]
 then
