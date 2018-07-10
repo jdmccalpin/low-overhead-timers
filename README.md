@@ -57,7 +57,6 @@ frequency of the processor, which is also the invariant TSC frequency, and retur
 This can then be used to convert TSC cycles to seconds.
 
 
-
 The source code "low_overhead_counters.c" can be used in one of two ways:
 1. #include "low_overhead_counters.c" directly into your code, or
 2. #include "low_overhead_counters.h" in your code and put
@@ -68,21 +67,5 @@ on the compile/link line.
 The second approach may add a few instructions and/or cycles to the 
 overhead of the counters unless inter-procedural optimizations are applied.
 
-The program "test_timer_overhead.c" tests all of the interfaces in
-"low_overhead_counters.c" with 64 repeated calls, then reports the minimum,
-average, and maximum counter deltas (excluding the first iteration).
-The program also includes tests of the same counters read directly using
-inline assembly macros for comparison.  The test_timer_overhead code is set
-up so that it can be compiled in either inline or separate compilation mode.
 
-The script "build_timer_tests.sh" will compile four versions of the
-test_timer_overhead program -- one with inlining and one with separate
-compilation, for each of the Intel (icc) and GNU (gcc) compilers.
-
-The script "run_timer_test_ensemble.sh" will run each of these versions 10
-times and save the results.
-
-The script "summarize.sh" will take a result file from the
-"run_timer_test_ensemble.sh" and compute the average of the average
-values (after excluding the slowest result of the ensemble).
-
+A driver code and scripts for testing these interfaces are in the LowOverheadTimersTests subdirectory.
