@@ -5,7 +5,6 @@ if [ $? -ne 0 ]
 then
     echo "Intel icc compiler not found, skipping...."
 else
-	echo "Intel icc compiler found...."
 	echo "compiling externally linked version with icc"
 	icc --version
 	icc -O2 -msse2 -nolib-inline -DUSE_PAUSE -c ../low_overhead_timers.c -o low_overhead_timers_icc.o
@@ -24,7 +23,6 @@ if [ $? -ne 0 ]
 then
     echo "GNU gcc compiler not found, skipping...."
 else
-	echo "GNU gcc compiler found...."
 	echo "compiling externally linked version with gcc"
 	gcc --version
 	gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -c ../low_overhead_timers.c -o low_overhead_timers_gcc.o
