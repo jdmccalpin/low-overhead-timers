@@ -19,12 +19,19 @@ else
 	icc -O2 -msse2 -nolib-inline -DUSE_PAUSE -DINLINE_TIMERS -I.. test_timer_overhead.c -S -o timer_ovhd_inline.icc.s
 fi
 
-echo "compiling externally linked version with gcc"
-gcc --version
-gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -c ../low_overhead_timers.c -o low_overhead_timers_gcc.o
-gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -I.. test_timer_overhead.c low_overhead_timers_gcc.o -o timer_ovhd_external.gcc.exe
-gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -I.. test_timer_overhead.c -fverbose-asm -S -o timer_ovhd_external.gcc.s
+which gcc >& /dev/null
+if [ $? -ne 0 ]
+then
+    echo "GNU gcc compiler not found, skipping...."
+else
+	echo "GNU gcc compiler found...."
+	echo "compiling externally linked version with gcc"
+	gcc --version
+	gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -c ../low_overhead_timers.c -o low_overhead_timers_gcc.o
+	gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -I.. test_timer_overhead.c low_overhead_timers_gcc.o -o timer_ovhd_external.gcc.exe
+	gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -I.. test_timer_overhead.c -fverbose-asm -S -o timer_ovhd_external.gcc.s
 
-echo "compiling inlined version with gcc"
-gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -DINLINE_TIMERS -I.. test_timer_overhead.c -o timer_ovhd_inline.gcc.exe
-gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -DINLINE_TIMERS -I.. test_timer_overhead.c -fverbose-asm -S -o timer_ovhd_inline.gcc.s
+	echo "compiling inlined version with gcc"
+	gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -DINLINE_TIMERS -I.. test_timer_overhead.c -o timer_ovhd_inline.gcc.exe
+	gcc -O2 -msse2 -fno-tree-loop-distribute-patterns -DUSE_PAUSE -DINLINE_TIMERS -I.. test_timer_overhead.c -fverbose-asm -S -o timer_ovhd_inline.gcc.s
+fi
