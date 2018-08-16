@@ -118,11 +118,6 @@ extern inline __attribute__((always_inline)) unsigned long rdpmc(int c)
         return (a | (d << 32));
 }
 
-
-
-#include <stdio.h>
-#include <stdlib.h>
-
 // core performance counter width varies by processor
 // the width is contained in bits 23:16 of the EAX register
 // after executing the CPUID instruction with an initial EAX
@@ -140,6 +135,29 @@ int get_core_counter_width()
 
 	return((eax & 0x00ff0000) >> 16);
 }
+
+// fixed-function performance counter width varies by processor
+// the width is contained in bits 12:5 of the EDX register
+// after executing the CPUID instruction with an initial EAX
+// argument of 0x0a (subleaf 0x0 in ECX).
+int get_fixed_counter_width()
+{
+	unsigned int eax, ebx, ecx, edx;
+	unsigned int leaf, subleaf;
+	int width;
+
+	leaf = 0x0000000a;
+	subleaf = 0x0;
+	__asm__ __volatile__ ("cpuid" : \
+	  "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) : "a" (leaf), "c" (subleaf));
+
+	return((edx & 0x00001fe0) >> 5);
+}
+
+// assume that these functions will automatically do the right thing if they are
+// included more than once....
+#include <stdio.h>
+#include <stdlib.h>
 
 // Utility routine to compute counter differences taking into account rollover
 // when the performance counter width is not known at compile time.  
@@ -167,7 +185,7 @@ unsigned long corrected_pmc_delta(unsigned long end, unsigned long start, int pm
 			result = end - start;
 		} else {
 			// I think this works independent of ordering, but this makes the most intuitive sense
-			result = (end + 1UL<<pmc_width) - start;
+			result = (end + (1UL<<pmc_width)) - start;
 		}
 		return (result);
 	}
