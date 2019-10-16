@@ -12,7 +12,7 @@
 	//    to monitor behavior over the entire sample loop.
 
 	for (j=0; j<NSAMPLES; j++) values32[j] = (j>>24); 
-	for (i=0; i<4; i++) pgm_counter_start[i] = rdpmc(i); 
+	for (i=0; i<NUM_CORE_COUNTERS; i++) core_counter_start[i] = rdpmc(i); 
 	gen_cyc_start = rdpmc_actual_cycles(); 
 	gen_ref_start = rdpmc_reference_cycles(); 
 	tsc_start = rdtscp(); 

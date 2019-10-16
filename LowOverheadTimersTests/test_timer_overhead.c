@@ -35,7 +35,7 @@
 #define inline_rdtscp(hi,low,aux) \
 	__asm__ volatile("rdtscp": "=a" (low), "=d" (hi), "=c" (aux));
 
-
+# define NUM_CORE_COUNTERS 2
 
 
 
@@ -96,12 +96,14 @@ int main ( int argc, char *argv[] )
 	unsigned int low, high, aux;
 	unsigned long count;
 	unsigned long dummy;
+	int core_ctr_width;
+	int fixed_ctr_width;
 
 	unsigned long gen_ins_start, gen_ins_end, fix_ins_start, fix_ins_end;
 	unsigned long gen_cyc_start, gen_cyc_end, fix_cyc_start, fix_cyc_end;
 	unsigned long gen_ref_start, gen_ref_end, fix_ref_start, fix_ref_end;
 	unsigned long tsc_start, tsc_end,  tscp_start, tscp_end;
-	unsigned long pgm_counter_start[4],pgm_counter_end[4];
+	unsigned long core_counter_start[NUM_CORE_COUNTERS],core_counter_end[NUM_CORE_COUNTERS];
 	long delta_cycle, delta_tsc;
 	long minval,maxval;
 	double avgval;
@@ -113,6 +115,14 @@ int main ( int argc, char *argv[] )
 
 	nominal_ghz = get_TSC_frequency() / 1.0e9;
 	printf("Nominal GHz %f\n",nominal_ghz);
+
+	core_ctr_width = get_core_counter_width();
+	fixed_ctr_width = get_fixed_counter_width();
+	printf("programmable core counter width is %d bits\n",core_ctr_width);
+	printf("fixed-function core counter width is %d bits\n",fixed_ctr_width);
+	if (core_ctr_width != fixed_ctr_width) {
+		printf("Warning -- programmable counter width does not match fixed-function counter width -- this code may have errors!\n");
+	}
 
 	// bind to a single processor
 	cpu = 4;			
@@ -128,16 +138,20 @@ int main ( int argc, char *argv[] )
 
 	printf("Spinning for a short time to allow the processor to ramp up to full speed\n");
 	dummy = 0;
-	for (i=0; i<4; i++) pgm_counter_start[i] = rdpmc(i);
+	for (i=0; i<NUM_CORE_COUNTERS; i++) core_counter_start[i] = rdpmc(i);
 	fix_ins_start = rdpmc_instructions();
 	tsc_start = rdtscp();
 	count = spin_function(dummy);
 	tsc_end = rdtscp();
 	fix_ins_end = rdpmc_instructions();
-	for (i=0; i<4; i++) pgm_counter_end[i] = rdpmc(i);
+	for (i=0; i<NUM_CORE_COUNTERS; i++) core_counter_end[i] = rdpmc(i);
 	spintime = (double)(tsc_end - tsc_start) / nominal_ghz / 1.0e9;
 	printf("  Spinning for %lu increments took %f seconds and executed %lu instructions\n",count,spintime,fix_ins_end - fix_ins_start);
-	printf("COUNTERS: spinning core count deltas %lu %lu %lu %lu\n", pgm_counter_end[0]-pgm_counter_start[0], pgm_counter_end[1]-pgm_counter_start[1], pgm_counter_end[2]-pgm_counter_start[2], pgm_counter_end[3]-pgm_counter_start[3]);
+	printf("COUNTERS: spinning core count deltas ");
+	for (i=0; i<NUM_CORE_COUNTERS; i++) {
+		printf(" %lu",corrected_pmc_delta(core_counter_end[i],core_counter_start[i],core_ctr_width));
+	}
+	printf("\n");
 	// the get_core_counter_width() function uses the cpuid instruction, which will serialize
 	// execution and try to keep any rdtsc instructions in the next test from getting too far out of order
 	count += get_core_counter_width();
