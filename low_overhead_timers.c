@@ -118,6 +118,26 @@ extern inline __attribute__((always_inline)) unsigned long rdpmc(int c)
         return (a | (d << 32));
 }
 
+// number of core performance counters per logical processor
+// varies by model and mode of operation (HT often splits the
+// counters across threads).
+// The number of counters per logical processor is contained in
+// bits 15:8 of EAX after executing the CPUID instruction
+// with an initial EAX value of 0x0a (optional input in ECX is not used).
+int get_num_core_counters()
+{
+	unsigned int eax, ebx, ecx, edx;
+	unsigned int leaf, subleaf;
+	int width;
+
+	leaf = 0x0000000a;
+	subleaf = 0x0;
+	__asm__ __volatile__ ("cpuid" : \
+	  "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) : "a" (leaf), "c" (subleaf));
+
+	return((eax & 0x0000ff00) >> 8);
+}
+
 // core performance counter width varies by processor
 // the width is contained in bits 23:16 of the EAX register
 // after executing the CPUID instruction with an initial EAX

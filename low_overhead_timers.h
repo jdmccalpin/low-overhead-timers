@@ -38,6 +38,7 @@ unsigned long rdpmc_instructions();
 unsigned long rdpmc_actual_cycles();
 unsigned long rdpmc_reference_cycles();
 unsigned long rdpmc(int c);
+int get_num_core_counters();
 int get_core_counter_width();
 int get_fixed_counter_width();
 unsigned long corrected_pmc_delta(unsigned long end, unsigned long start, int pmc_width);
