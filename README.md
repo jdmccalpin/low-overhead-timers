@@ -47,6 +47,8 @@ rdpmc_reference_cycles, the processor probably spent some time in a HALT state.
   No error or bounds checking is performed.
 
 Auxiliary routines include:
+* get_num_counters() uses the CPUID instruction to discover the number of programmable core counters
+per logical processor.  This can be 2, 4, or 8, depending on model and mode of operation.
 * get_core_counter_width() uses the CPUID instruction to discover the width of the programmable core 
 performance counters.  This is 48 bits on most recent Intel processors, but processors with 40-bit and
 32-bit counter widths also exist.
