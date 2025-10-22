@@ -11,9 +11,10 @@ performance counters are private to each logical processor, so differences
 only make sense between values that are guaranteed to have come from the
 same logical processor.
 
-These timers/counters employ user-space instructions only, and require
-no elevated privileges.   Elevated privileges are required to program
-to counters, but not to read them.  The sample scripts SetupPowerLevelCounters.sh
+These timers/counters employ user-space instructions only, but the O/S can
+prohibit access to some of these instructions at user privilege levels.
+Elevated privileges are always required to program the counters, but may not be required not to read them.  
+The sample scripts SetupPowerLevelCounters.sh
 and SetupUserKernelCounters.sh require the msrtools binaries to be installed
 and root permission to execute.  They set up the first four hardware performance
 counters on each logical processor to measure events that are useful for
