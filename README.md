@@ -54,9 +54,10 @@ performance counters.  This is 48 bits on most recent Intel processors, but proc
 32-bit counter widths also exist.
 * corrected_pmc_delta() uses the counter width provided by get_core_counter_width() to compute a difference
 between two counter values with corrections for a single wrap-around of the counter.
-* get_TSC_frequency() parses the Brand Identification string from the CPUID instruction to get the "nominal"
+* get_TSC_frequency() (added 2025-10-22) attempts to use the CPUID instruction (leaf 0x15) on recent Intel processors to obtain the TSC frequency.
+* OLD_get_TSC_frequency() parses the Brand Identification string from the CPUID instruction to attempt to find the "nominal"
 frequency of the processor, which is also the invariant TSC frequency, and returned as a float value in Hz.
-This can then be used to convert TSC cycles to seconds.
+This can then be used to convert TSC cycles to seconds.  Not currently working on recent Intel processors, but I don't know when it broke....
 
 
 The source code "low_overhead_counters.c" can be used in one of two ways:
