@@ -211,6 +211,53 @@ unsigned long corrected_pmc_delta(unsigned long end, unsigned long start, int pm
 	}
 }
 
+// Newer approach to get TSC frequency information from the CPUID instruction on Intel processors only.
+// CPUID leaf 15h provides the information in numerical form.  Not sure how far back this support goes....
+// Returns a frequency of -1.0 if anything goes wrong....
+// Added 2025-10-22 by john@mccalpin.com
+float get_TSC_frequency()
+{
+	unsigned int eax, ebx, ecx, edx;
+	unsigned int leaf, subleaf;
+
+    unsigned int denom,numer,xtal;
+    float tsc_freq;
+    int debug = 0;
+
+    tsc_freq = -1;
+
+    leaf = 0;
+    subleaf = 0;
+
+    // First check CPUID leaf 0 to see if this is an Intel processor and if the processor supports CPUID leaf 15h
+    __asm__ __volatile__ ("cpuid" : \
+      "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) : "a" (leaf), "c" (subleaf));
+
+    if (debug) printf("leaf = %x, eax = %8.8x, ebx = %8.8x, ecx = %8.8x, edx = %8.8x\n",leaf, eax, ebx, ecx, edx);
+
+    if (debug) printf("DEBUG processor brand ID ebx,ecx,edx: 0x%x 0x%x 0x%x\n",ebx,ecx,edx);
+    if ( (ebx == 0x756e6547) && (ecx == 0x6c65746e) && (edx == 0x49656e69) ) {
+        if (debug) printf("This is a Genuine Intel processor\n");
+    } else {
+        return(-1.0);
+    }
+
+    if (eax >= 0x15) {
+        if (debug) printf("Maximum leaf number 0x%x is greater than or equal to 0x15, so TSC frequency information can be read\n",eax);
+        leaf = 0x15;
+        subleaf = 0;
+        __asm__ __volatile__ ("cpuid" : \
+          "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) : "a" (leaf), "c" (subleaf));
+        denom = eax;
+        numer = ebx;
+        xtal = ecx;
+        if (debug) printf("DEBUG: denominator %u numerator %u xtal %u\n",denom,numer,xtal);
+        tsc_freq = (float)xtal * (float)numer / (float)denom;
+    }
+    return(tsc_freq);
+}
+
+
 // Ugly, ugly, ugly hack to get nominal frequency from CPUID Brand String
 // on Intel processors.
 // Converted from C++ to C.
@@ -218,7 +265,7 @@ unsigned long corrected_pmc_delta(unsigned long end, unsigned long start, int pm
 // not "MHz" or "THz".  So far this works on all processors tested.
 // Return value is frequency in Hz, so user will need to divide by 1e9
 // if GHz is desired....
-float get_TSC_frequency()
+float OLD_get_TSC_frequency()
 {
 	unsigned int eax, ebx, ecx, edx;
 	unsigned int leaf, subleaf;
