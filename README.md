@@ -36,26 +36,26 @@ which processor the TSC reading came from.)
 * get_core_number() uses the RDTSCP instruction, but returns only the core number in an integer variable.
 * get_socket_number() uses the RDTSCP instruction, but returns only the socket number in an integer variable.
 * rdpmc_instructions() uses a "fixed-function" performance counter to return the count of retired instructions on
-the current core in the low-order 48 bits of an unsigned 64-bit integer.
+the current core in the low-order 48 bits of an unsigned 64-bit integer. (Not supported on AMD processors.)
 * rdpmc_actual_cycles() uses a "fixed-function" performance counter to return the count of actual CPU core cycles
 executed by the current core.  Core cycles are not accumulated while the processor is in the "HALT" state,
-which is used when the operating system has no task(s) to run on a processor core.
+which is used when the operating system has no task(s) to run on a processor core. (Not supported on AMD processors.)
 * rdpmc_reference_cycles() uses a "fixed-function" performance counter to return the count of "reference" (or "nominal")
 CPU core cycles executed by the current core.  This counts at the same rate as the TSC, but does not count
 when the core is in the "HALT" state.  If a timed section of code shows a larger change in TSC than in
-rdpmc_reference_cycles, the processor probably spent some time in a HALT state.
+rdpmc_reference_cycles, the processor probably spent some time in a HALT state. (Not supported on AMD processors.)
 * rdpmc() reads the programmable core performance counter number specified in the input argument.
   No error or bounds checking is performed.
 
 Auxiliary routines include:
 * get_num_core_counters() uses the CPUID instruction to discover the number of programmable core counters
-per logical processor.  This can be 2, 4, or 8, depending on model and mode of operation.
+per logical processor.  This can be 2, 4, or 8, depending on model and mode of operation. (Not tested on AMD processors.)
 * get_core_counter_width() uses the CPUID instruction to discover the width of the programmable core 
 performance counters.  This is 48 bits on most recent Intel processors, but processors with 40-bit and
-32-bit counter widths also exist.
+32-bit counter widths also exist. (Not tested on AMD processors.)
 * corrected_pmc_delta() uses the counter width provided by get_core_counter_width() to compute a difference
 between two counter values with corrections for a single wrap-around of the counter.
-* get_TSC_frequency() (added 2025-10-22) attempts to use the CPUID instruction (leaf 0x15) on recent Intel processors to obtain the TSC frequency.
+* get_TSC_frequency() (added 2025-10-22) attempts to use the CPUID instruction (leaf 0x15) on recent Intel processors to obtain the TSC frequency. (Not tested on AMD processors.)
 * OLD_get_TSC_frequency() parses the Brand Identification string from the CPUID instruction to attempt to find the "nominal"
 frequency of the processor, which is also the invariant TSC frequency, and returned as a float value in Hz.
 This can then be used to convert TSC cycles to seconds.  Not currently working on recent Intel processors, but I don't know when it broke....
